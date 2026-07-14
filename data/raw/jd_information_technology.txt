@@ -1,0 +1,73 @@
+
+JOB OPENING: PYTHON BACKEND DEVELOPER
+Position: Python Backend Developer
+
+Department: Engineering / Software Development Team
+
+Location: [Insert Company Address]
+
+Employment Type: Full-time
+
+Salary: Competitive / Negotiable based on capability
+
+JOB SUMMARY
+We are looking for a talented Python Backend Developer to join our engineering team. In this role, you will design, build, and maintain scalable backend services and robust APIs that power our core products. The ideal candidate will focus on system stability, high performance, and clean architecture.
+
+ROLES AND RESPONSIBILITIES
+System Development: Design and develop high-performance RESTful APIs and backend services using Python.
+
+Code Quality: Write clean, maintainable, and well-tested code, ensuring thorough technical documentation and automated test coverage.
+
+Performance Optimization: Optimize application performance, monitor system health, and troubleshoot production issues efficiently.
+
+Cross-functional Collaboration: Collaborate closely with frontend engineers, product managers, and DevOps teams to deliver features end-to-end.
+
+Team Contribution: Participate in code reviews and actively contribute to technical design and architectural discussions.
+
+Deployment & CI/CD: Maintain and improve CI/CD pipelines for automated backend testing and deployments.
+
+JOB REQUIREMENTS
+Required Skills & Qualifications:
+Proficient in the Python programming language.
+
+Hands-on experience with Python backend frameworks such as Django or Flask.
+
+Strong knowledge of SQL (database design, query optimization, and data modeling).
+
+Solid understanding of RESTful API design principles.
+
+Proficient with Git version control.
+
+Experience with containerization using Docker.
+
+Preferred Skills (Nice to Have):
+Experience with cloud platforms like AWS, GCP, or Azure.
+
+Experience with Redis for caching or message queuing.
+
+Experience with container orchestration using Kubernetes.
+
+Familiarity with unit testing frameworks such as pytest.
+
+Experience:
+Minimum of 3 years of professional experience in backend software development.
+
+Proven experience building and maintaining production-grade APIs.
+
+Experience working within an Agile/Scrum team environment is highly preferred.
+
+Education:
+Bachelor’s degree in Computer Science, Software Engineering, or a related field.
+
+Equivalent practical experience will also be considered in place of a formal degree.
+
+BENEFITS AND PERKS
+Competitive salary with a 13th-month bonus and performance-based incentives.
+
+Full social insurance, health insurance, and unemployment insurance coverage according to local labor laws.
+
+Dynamic, young, and professional working environment with modern tech stacks.
+
+Clear career path progression (towards Senior / Tech Lead roles).
+
+[Insert additional perks here, e.g., Annual company trips, flexible remote work options, hardware allowance, etc.]

@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Screening — AI-Powered Candidate Ranking</title>
+    <meta name="description" content="AI-powered CV screening tool. Upload resumes and job descriptions to automatically rank candidates.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ===== TOKENS ===== */
+        :root {
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+            --radius-full: 999px;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #fafafa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f5f5f5;
+            --bg-elevated: rgba(255, 255, 255, 0.92);
+            --bg-input: #f9f9f9;
+            --text-primary: #0a0a0a;
+            --text-secondary: #525252;
+            --text-tertiary: #a3a3a3;
+            --border-primary: rgba(0, 0, 0, 0.08);
+            --border-secondary: rgba(0, 0, 0, 0.04);
+            --accent: #171717;
+            --accent-hover: #262626;
+            --accent-text: #ffffff;
+            --accent-subtle: rgba(0, 0, 0, 0.05);
+            --success: #16a34a;
+            --success-bg: rgba(22, 163, 74, 0.08);
+            --warning: #ca8a04;
+            --warning-bg: rgba(202, 138, 4, 0.08);
+            --error: #dc2626;
+            --error-bg: rgba(220, 38, 38, 0.06);
+            --info: #2563eb;
+            --info-bg: rgba(37, 99, 235, 0.06);
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.08);
+            --code-bg: #1a1a2e;
+            --code-text: #e2e8f0;
+            --dot-color: rgba(0, 0, 0, 0.06);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-tertiary: #1a1a1a;
+            --bg-elevated: rgba(20, 20, 20, 0.92);
+            --bg-input: #1a1a1a;
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --text-tertiary: #525252;
+            --border-primary: rgba(255, 255, 255, 0.08);
+            --border-secondary: rgba(255, 255, 255, 0.04);
+            --accent: #fafafa;
+            --accent-hover: #e5e5e5;
+            --accent-text: #0a0a0a;
+            --accent-subtle: rgba(255, 255, 255, 0.06);
+            --success: #22c55e;
+            --success-bg: rgba(34, 197, 94, 0.1);
+            --warning: #eab308;
+            --warning-bg: rgba(234, 179, 8, 0.1);
+            --error: #ef4444;
+            --error-bg: rgba(239, 68, 68, 0.08);
+            --info: #3b82f6;
+            --info-bg: rgba(59, 130, 246, 0.08);
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.3);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+            --code-bg: #0d0d1a;
+            --code-text: #e2e8f0;
+            --dot-color: rgba(255, 255, 255, 0.04);
+        }
+
+        /* ===== RESET ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        /* ===== THEME TOGGLE ===== */
+        .theme-toggle {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            width: 44px; height: 44px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border-primary);
+            background: var(--bg-elevated);
+            backdrop-filter: blur(12px);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all var(--transition);
+            box-shadow: var(--shadow-md);
+        }
+        .theme-toggle:hover { transform: scale(1.08); box-shadow: var(--shadow-lg); }
+        .theme-toggle svg {
+            width: 18px; height: 18px; fill: none; stroke: var(--text-primary);
+            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+            transition: all var(--transition);
+        }
+        .theme-toggle .icon-moon { display: block; }
+        .theme-toggle .icon-sun  { display: none;  }
+        [data-theme="dark"] .theme-toggle .icon-moon { display: none;  }
+        [data-theme="dark"] .theme-toggle .icon-sun  { display: block; }
+
+        /* ============================= */
+        /* ========== INTRO ============ */
+        /* ============================= */
+        .intro {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+            padding: 40px 20px;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .intro.exit { opacity: 0; transform: translateY(-40px); pointer-events: none; }
+        .intro-hidden { display: none !important; }
+
+        /* Dot grid */
+        .intro::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
+            background-size: 24px 24px;
+            z-index: 0;
+        }
+
+        /* Animated glows */
+        .intro-glow {
+            position: absolute;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            animation: glowFloat 8s ease-in-out infinite;
+            z-index: 0;
+        }
+        .intro-glow--1 { background: var(--text-primary); top: -200px; left: -100px; }
+        .intro-glow--2 { background: var(--text-secondary); bottom: -200px; right: -100px; animation-delay: -4s; }
+
+        @keyframes glowFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 20px) scale(1.1); }
+        }
+
+        .intro-content { position: relative; z-index: 1; text-align: center; max-width: 680px; }
+
+        .intro-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 14px; border-radius: var(--radius-full);
+            border: 1px solid var(--border-primary);
+            background: var(--bg-elevated);
+            backdrop-filter: blur(8px);
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+            letter-spacing: 0.04em; text-transform: uppercase;
+            margin-bottom: 32px;
+            animation: fadeUp 0.6s ease-out;
+        }
+        .intro-badge::before {
+            content: ''; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+        .intro-title {
+            font-size: clamp(40px, 7vw, 72px);
+            font-weight: 900; line-height: 1.02;
+            letter-spacing: -0.04em;
+            margin-bottom: 20px;
+            animation: fadeUp 0.6s ease-out 0.1s both;
+        }
+        .intro-title span {
+            display: block;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .intro-description {
+            font-size: 17px; line-height: 1.7; color: var(--text-secondary);
+            max-width: 520px; margin: 0 auto 40px;
+            animation: fadeUp 0.6s ease-out 0.2s both;
+        }
+
+        .intro-cta-group {
+            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+            animation: fadeUp 0.6s ease-out 0.3s both;
+        }
+
+        /* Shared button styles */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            border: none; border-radius: var(--radius-full);
+            padding: 14px 32px;
+            font-family: var(--font); font-size: 14px; font-weight: 600;
+            cursor: pointer; text-decoration: none;
+            transition: all var(--transition);
+        }
+        .btn-primary {
+            background: var(--accent); color: var(--accent-text);
+            box-shadow: var(--shadow-md);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); background: var(--accent-hover); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-secondary { background: transparent; color: var(--text-primary); border: 1px solid var(--border-primary); }
+        .btn-secondary:hover { background: var(--accent-subtle); transform: translateY(-1px); }
+        .btn-soft { background: var(--accent-subtle); color: var(--text-primary); border: none; }
+        .btn-soft:hover { background: var(--border-primary); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+        .btn-sm { padding: 9px 18px; font-size: 13px; }
+        .btn-lg { padding: 14px 34px; font-size: 15px; }
+
+        .btn-primary .arrow-icon { transition: transform var(--transition); }
+        .btn-primary:hover .arrow-icon { transform: translateX(3px); }
+
+        /* Feature grid */
+        .intro-features {
+            position: relative; z-index: 1;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 16px; max-width: 740px;
+            margin-top: 72px;
+            animation: fadeUp 0.6s ease-out 0.45s both;
+        }
+        .feature-card {
+            padding: 24px; border-radius: var(--radius-lg);
+            border: 1px solid var(--border-primary);
+            background: var(--bg-elevated);
+            backdrop-filter: blur(8px);
+            text-align: left;
+            transition: all var(--transition);
+        }
+        .feature-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .feature-icon {
+            width: 36px; height: 36px; border-radius: var(--radius-md);
+            background: var(--accent-subtle);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 14px; font-size: 17px;
+        }
+        .feature-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }
+        .feature-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================= */
+        /* ========== APP ============== */
+        /* ============================= */
+        .app { display: none; min-height: 100vh; }
+        .app.active { display: block; animation: appEnter 0.6s ease-out 0.15s both; }
+        @keyframes appEnter { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+        .wrap { max-width: 920px; margin: 0 auto; padding: 28px 24px 80px; }
+
+        /* Top bar */
+        .topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 32px;
+        }
+        .topbar-brand {
+            display: flex; align-items: center; gap: 8px;
+            font-weight: 700; font-size: 14px; letter-spacing: -0.02em;
+            cursor: pointer; transition: opacity var(--transition);
+        }
+        .topbar-brand:hover { opacity: 0.6; }
+        .topbar-logo {
+            width: 28px; height: 28px; border-radius: var(--radius-sm);
+            background: var(--accent); color: var(--accent-text);
+            display: grid; place-items: center;
+            font-weight: 900; font-size: 11px;
+        }
+        .topbar-right { display: flex; gap: 6px; align-items: center; }
+
+        /* Stepper */
+        .stepper {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 12px; margin-bottom: 32px;
+        }
+        .step {
+            padding: 18px; border-radius: 14px;
+            border: 1px solid var(--border-primary);
+            background: var(--bg-primary);
+            transition: all var(--transition);
+        }
+        .step.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+        .step.done   { border-color: var(--success); }
+        .step-num {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--bg-tertiary); color: var(--text-tertiary);
+            display: grid; place-items: center;
+            font-size: 11px; font-weight: 700;
+            margin-bottom: 10px; transition: all var(--transition);
+        }
+        .step.active .step-num { background: var(--accent); color: var(--accent-text); }
+        .step.done .step-num   { background: var(--success); color: #fff; }
+        .step-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+        .step-desc  { font-size: 11px; color: var(--text-tertiary); line-height: 1.4; }
+
+        /* Collapsible zones */
+        .zone {
+            border-radius: 14px; border: 1px solid var(--border-primary);
+            background: var(--bg-primary);
+            margin-bottom: 14px; overflow: hidden;
+            transition: all var(--transition);
+        }
+        .zone-head {
+            padding: 14px 18px;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; user-select: none;
+            transition: background var(--transition);
+        }
+        .zone-head:hover { background: var(--bg-tertiary); }
+        .zone-head h3 { font-size: 14px; font-weight: 700; }
+        .zone-body { padding: 0 18px 18px; display: none; }
+        .zone.open .zone-body { display: block; animation: fadeIn 0.2s ease; }
+        .zone-chevron {
+            width: 16px; height: 16px; stroke: var(--text-tertiary); fill: none;
+            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+            transition: transform var(--transition);
+        }
+        .zone.open .zone-chevron { transform: rotate(180deg); }
+
+        .file-input {
+            width: 100%; padding: 12px;
+            border-radius: 10px; border: 1.5px dashed var(--border-primary);
+            background: var(--bg-input); color: var(--text-primary);
+            font-family: var(--font); font-size: 13px;
+            transition: border-color var(--transition); cursor: pointer;
+        }
+        .file-input:hover { border-color: var(--text-tertiary); }
+        .file-input:focus { outline: none; border-color: var(--accent); }
+
+        .zone-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+        /* Info bar */
+        .info-bar {
+            display: flex; gap: 16px; flex-wrap: wrap;
+            padding: 10px 16px; border-radius: 10px;
+            border: 1px solid var(--border-secondary);
+            background: var(--bg-tertiary);
+            margin-bottom: 24px;
+            font-size: 12px; color: var(--text-secondary);
+        }
+        .info-bar strong { color: var(--text-primary); font-weight: 700; }
+
+        /* Results header */
+        .results-head {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
+        }
+        .results-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+        .results-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* Pills */
+        .pill {
+            display: inline-flex; padding: 4px 11px; border-radius: var(--radius-full);
+            font-size: 11px; font-weight: 600; white-space: nowrap;
+        }
+        .pill-mute { background: var(--bg-tertiary); color: var(--text-tertiary); }
+        .pill-ok   { background: var(--success-bg); color: var(--success); }
+        .pill-warn { background: var(--warning-bg); color: var(--warning); }
+        .pill-info { background: var(--info-bg); color: var(--info); }
+        .pill-err  { background: var(--error-bg); color: var(--error); }
+
+        /* Candidate card */
+        .cand {
+            border-radius: 14px; border: 1px solid var(--border-primary);
+            background: var(--bg-primary);
+            margin-bottom: 10px; transition: box-shadow var(--transition);
+        }
+        .cand:hover { box-shadow: var(--shadow-sm); }
+        .cand-top {
+            padding: 18px 20px;
+            display: grid; grid-template-columns: auto 1fr auto;
+            gap: 16px; align-items: start;
+        }
+        .cand-score {
+            width: 64px; height: 64px; border-radius: 14px;
+            background: var(--bg-tertiary); border: 1px solid var(--border-primary);
+            display: grid; place-items: center;
+            font-size: 22px; font-weight: 900; letter-spacing: -0.03em;
+        }
+        .cand-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+        .cand-email { font-size: 12px; color: var(--text-secondary); }
+        .cand-email a { color: var(--text-secondary); text-decoration: underline; text-underline-offset: 2px; }
+        .cand-email a:hover { color: var(--text-primary); }
+        .cand-reason { font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-top: 6px; }
+        .cand-links { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+        .cand-link {
+            padding: 3px 9px; border-radius: var(--radius-full);
+            background: var(--bg-tertiary); color: var(--text-secondary);
+            font-size: 10px; font-weight: 600;
+            text-decoration: none; transition: background var(--transition);
+        }
+        .cand-link:hover { background: var(--border-primary); color: var(--text-primary); }
+        .cand-detail { display: none; padding: 0 20px 20px; }
+        .cand.open .cand-detail { display: block; animation: fadeIn 0.2s ease; }
+        .cand-detail-inner {
+            padding: 16px; border-radius: var(--radius-md);
+            border: 1px solid var(--border-secondary);
+            background: var(--bg-tertiary);
+        }
+
+        /* Tables */
+        .dtable { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .dtable th, .dtable td {
+            padding: 8px 10px; border-bottom: 1px solid var(--border-secondary);
+            text-align: left; vertical-align: top;
+        }
+        .dtable th {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.05em; color: var(--text-tertiary);
+        }
+        .dtable tr:last-child td { border-bottom: 0; }
+
+        .chip-list { display: flex; flex-wrap: wrap; gap: 4px; }
+        .chip {
+            padding: 3px 8px; border-radius: var(--radius-full);
+            background: var(--accent-subtle); font-size: 10px; font-weight: 600;
+        }
+        .muted-box {
+            padding: 8px 10px; border-radius: var(--radius-sm);
+            background: var(--bg-tertiary); color: var(--text-secondary);
+            font-size: 11px; line-height: 1.5; white-space: pre-wrap;
+        }
+        .empty {
+            padding: 32px; border-radius: 14px;
+            border: 1px dashed var(--border-primary);
+            color: var(--text-tertiary); font-size: 13px;
+            text-align: center; line-height: 1.6;
+        }
+
+        /* Raw / Code */
+        .raw-pre {
+            margin: 0; padding: 14px; border-radius: 10px;
+            background: var(--code-bg); color: var(--code-text);
+            overflow: auto; max-height: 360px;
+            white-space: pre; font-size: 11px; line-height: 1.6;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        /* Rejected */
+        .rej-card {
+            padding: 14px; border-radius: var(--radius-md);
+            border: 1px solid var(--error-bg); background: var(--bg-primary);
+            margin-bottom: 8px;
+        }
+        .rej-name { font-size: 13px; font-weight: 700; color: var(--error); }
+        .rej-reason {
+            margin-top: 6px; padding: 8px 10px; border-radius: var(--radius-sm);
+            background: var(--error-bg); font-size: 11px; color: var(--error); line-height: 1.5;
+        }
+
+        /* Cost */
+        .cost-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px; margin-bottom: 12px;
+        }
+        .cost-card {
+            padding: 12px; border-radius: 10px;
+            border: 1px solid var(--border-secondary); background: var(--bg-tertiary);
+        }
+        .cost-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); }
+        .cost-val { font-size: 15px; font-weight: 800; margin-top: 4px; }
+        .cost-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 8px; }
+        .cost-item {
+            padding: 12px; border-radius: 10px;
+            border: 1px solid var(--border-secondary); background: var(--bg-primary);
+        }
+        .cost-item-head { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+        .cost-item-title { font-size: 12px; font-weight: 700; }
+        .cost-item-sub { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+        .cost-pill {
+            display: inline-flex; padding: 3px 9px; border-radius: var(--radius-full);
+            background: var(--success-bg); color: var(--success);
+            font-size: 10px; font-weight: 700; white-space: nowrap;
+        }
+
+        /* Section block */
+        .sec-block {
+            border-radius: 14px; border: 1px solid var(--border-primary);
+            background: var(--bg-primary); padding: 18px;
+            margin-bottom: 12px;
+        }
+        .sec-block h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+
+        /* Spinner */
+        .spin { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 13px; }
+        .spin::before {
+            content: ''; width: 14px; height: 14px; border-radius: 50%;
+            border: 2px solid var(--border-primary); border-top-color: var(--accent);
+            animation: sp 0.7s linear infinite;
+        }
+        @keyframes sp { to{transform:rotate(360deg)} }
+
+        /* Toast */
+        .toast-wrap {
+            position: fixed; right: 20px; bottom: 20px; z-index: 999;
+            width: min(320px, calc(100vw - 40px));
+        }
+        .toast {
+            padding: 12px 16px; border-radius: var(--radius-md);
+            border: 1px solid var(--border-primary);
+            background: var(--bg-elevated); backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.2s ease;
+            margin-bottom: 8px;
+        }
+        .toast.ok  { border-left: 3px solid var(--success); }
+        .toast.err { border-left: 3px solid var(--error); }
+        .toast.inf { border-left: 3px solid var(--info); }
+        .toast-t { font-size: 10px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 3px; }
+        .toast.ok .toast-t  { color: var(--success); }
+        .toast.err .toast-t { color: var(--error); }
+        .toast.inf .toast-t { color: var(--info); }
+        .toast-m { font-size: 12px; color: var(--text-primary); line-height: 1.45; }
+        @keyframes toastIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+        .hidden { display: none !important; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stepper { grid-template-columns: 1fr; }
+            .cand-top { grid-template-columns: 1fr; }
+            .cand-score { width: 48px; height: 48px; font-size: 18px; }
+            .intro-features { grid-template-columns: 1fr; max-width: 400px; }
+            .cost-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .wrap { padding: 16px 16px 60px; }
+            .cost-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+
+<!-- ===== INTRO PAGE ===== -->
+<section class="intro" id="introSection">
+    <div class="intro-glow intro-glow--1"></div>
+    <div class="intro-glow intro-glow--2"></div>
+
+    <div class="intro-content">
+        <div class="intro-badge">AI-Powered Screening</div>
+
+        <h1 class="intro-title">
+            <span>Screen resumes.</span>
+            <span>Rank candidates.</span>
+            <span>Hire smarter.</span>
+        </h1>
+
+        <p class="intro-description">
+            Upload your CVs and Job Description. Our AI agent reads, compares, and ranks every candidate
+            based on skills, education, and experience matching.
+        </p>
+
+        <div class="intro-cta-group">
+            <button class="btn btn-primary btn-lg" id="tryNowBtn">
+                Try Now
+                <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+        </div>
+    </div>
+
+
+</section>
+
+<!-- ===== MAIN APP ===== -->
+<section class="app" id="appSection">
+<div class="wrap">
+
+    <nav class="topbar">
+        <div class="topbar-brand" id="backToIntro">
+            <div class="topbar-logo">CV</div>
+            <span>CV Screening</span>
+        </div>
+        <div class="topbar-right">
+            <a class="btn btn-soft btn-sm" href="/dev_mode" target="_blank">/dev_mode</a>
+            <a class="btn btn-soft btn-sm" href="/cost" target="_blank">/cost</a>
+        </div>
+    </nav>
+
+    <!-- Stepper -->
+    <div class="stepper">
+        <div class="step active" id="step1">
+            <div class="step-num">1</div>
+            <div class="step-title">Upload CVs</div>
+            <div class="step-desc">Select PDF resumes to upload</div>
+        </div>
+        <div class="step" id="step2">
+            <div class="step-num">2</div>
+            <div class="step-title">Upload JD</div>
+            <div class="step-desc">Add the Job Description</div>
+        </div>
+        <div class="step" id="step3">
+            <div class="step-num">3</div>
+            <div class="step-title">Results</div>
+            <div class="step-desc">View ranked candidates</div>
+        </div>
+    </div>
+
+    <!-- Upload Zones -->
+    <div class="zone open" id="cvZone">
+        <div class="zone-head" onclick="toggleZone('cvZone')">
+            <h3>Upload CVs</h3>
+            <svg class="zone-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="zone-body">
+            <form id="cvForm">
+                <input class="file-input" id="cvFiles" name="files" type="file" accept="application/pdf,.pdf" multiple>
+                <div class="zone-actions">
+                    <button type="submit" class="btn btn-primary btn-sm" id="cvBtn">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="zone" id="jdZone">
+        <div class="zone-head" onclick="toggleZone('jdZone')">
+            <h3>Upload Job Description</h3>
+            <svg class="zone-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="zone-body">
+            <form id="jdForm">
+                <input class="file-input" id="jdFile" name="file" type="file" accept="application/pdf,.pdf">
+                <div class="zone-actions">
+                    <button type="submit" class="btn btn-primary btn-sm" id="jdBtn" disabled>Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="zone" id="runZone">
+        <div class="zone-head" onclick="toggleZone('runZone')">
+            <h3>Run Process</h3>
+            <svg class="zone-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="zone-body">
+            <div class="zone-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="runBtn" disabled>Run Screening</button>
+                <button type="button" class="btn btn-soft btn-sm" id="rawBtn" disabled>Raw JSON</button>
+                <button type="button" class="btn btn-soft btn-sm" id="costBtn" disabled>Cost</button>
+                <button type="button" class="btn btn-soft btn-sm" id="rejBtn" disabled>Rejected</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info bar -->
+    <div class="info-bar">
+        <span>Session ID: <strong id="curId">—</strong></span>
+        <span>JD Status: <strong id="jdStatus">Not uploaded</strong></span>
+    </div>
+
+    <!-- Results -->
+    <div class="results-head">
+        <div>
+            <h2>Results</h2>
+            <div class="results-sub" id="resSub">Upload files and run the process to see ranked candidates.</div>
+        </div>
+        <div class="pill pill-mute" id="resCount">0 candidates</div>
+    </div>
+
+    <div id="jdArea" class="empty">No JD or results to display yet.</div>
+
+    <div id="costWrap" class="sec-block hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h4 style="margin:0">Cost Breakdown</h4>
+            <div class="pill pill-info" id="costCnt">0 items</div>
+        </div>
+        <div id="costArea"></div>
+    </div>
+
+    <div id="rejWrap" class="sec-block hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h4 style="margin:0">Rejected CVs</h4>
+            <div class="pill pill-warn" id="rejCnt">0</div>
+        </div>
+        <div id="rejArea"></div>
+    </div>
+
+    <div id="rawWrap" class="sec-block hidden">
+        <h4>Raw Result</h4>
+        <pre class="raw-pre" id="rawArea"></pre>
+    </div>
+
+    <div id="resArea"></div>
+
+</div>
+</section>
+
+<div id="toastBox" class="toast-wrap hidden"></div>
+
+<script>
+/* === Theme === */
+const html = document.documentElement;
+function getTheme() { return html.getAttribute('data-theme'); }
+function setTheme(t) { html.setAttribute('data-theme', t); localStorage.setItem('cvs-theme', t); }
+setTheme(localStorage.getItem('cvs-theme') || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light'));
+document.getElementById('themeToggle').onclick = () => setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+
+/* === Intro / App transition === */
+const introSection = document.getElementById('introSection');
+const appSection = document.getElementById('appSection');
+
+document.getElementById('tryNowBtn').onclick = () => {
+    introSection.classList.add('exit');
+    setTimeout(() => { introSection.classList.add('intro-hidden'); appSection.classList.add('active'); }, 500);
+};
+document.getElementById('backToIntro').onclick = () => {
+    appSection.classList.remove('active');
+    introSection.classList.remove('intro-hidden');
+    void introSection.offsetWidth;
+    introSection.classList.remove('exit');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+/* === Zone toggle === */
+function toggleZone(id) { document.getElementById(id).classList.toggle('open'); }
+
+/* === Refs === */
+const $ = id => document.getElementById(id);
+const cvForm=$('cvForm'), cvFiles=$('cvFiles'), jdForm=$('jdForm'), jdFile=$('jdFile');
+const cvBtn=$('cvBtn'), jdBtn=$('jdBtn'), runBtn=$('runBtn');
+const rawBtn=$('rawBtn'), costBtn=$('costBtn'), rejBtn=$('rejBtn');
+const curId=$('curId'), jdStatusEl=$('jdStatus');
+const jdArea=$('jdArea'), resArea=$('resArea'), resSub=$('resSub'), resCount=$('resCount');
+const rawWrap=$('rawWrap'), rawArea=$('rawArea');
+const costWrap=$('costWrap'), costArea=$('costArea'), costCnt=$('costCnt');
+const rejWrap=$('rejWrap'), rejArea=$('rejArea'), rejCnt=$('rejCnt');
+const toastBox=$('toastBox');
+const step1=$('step1'), step2=$('step2'), step3=$('step3');
+
+let uid=null, jdDone=false, hasResults=false;
+let jdInfo=null, rawData=null, costData=null, rejectedCvs=[];
+let rawVis=false, costVis=false, rejVis=false;
+
+function sync() {
+    jdBtn.disabled=!uid; runBtn.disabled=!jdDone;
+    rawBtn.disabled=!rawData; costBtn.disabled=false; rejBtn.disabled=!rejectedCvs.length;
+    curId.textContent=uid??'—';
+    jdStatusEl.textContent=jdDone?'Uploaded':'Not uploaded';
+    step1.className='step'+(uid?' done':' active');
+    step2.className='step'+(jdDone?' done':uid?' active':'');
+    step3.className='step'+(hasResults?' done':jdDone?' active':'');
+}
+
+/* === Toast === */
+function toast(msg,type='inf',title='Notice') {
+    toastBox.classList.remove('hidden'); toastBox.innerHTML='';
+    const d=document.createElement('div'); d.className=`toast ${type}`;
+    d.innerHTML=`<div class="toast-t">${esc(title)}</div><div class="toast-m">${esc(msg)}</div>`;
+    toastBox.appendChild(d);
+    clearTimeout(toast._t);
+    toast._t=setTimeout(()=>{toastBox.classList.add('hidden');toastBox.innerHTML='';},3500);
+}
+
+/* === Helpers === */
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toList(v){return Array.isArray(v)?v:(v==null||v==='')?[]:[v];}
+function join(v){return toList(v).map(String).filter(Boolean).join(', ');}
+function fmtCost(v){const n=Number(v??0);return Number.isFinite(n)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:4,maximumFractionDigits:4}).format(n):'$0.0000';}
+function fmtInt(v){return new Intl.NumberFormat('en-US').format(Number(v??0));}
+function normLinks(v){if(Array.isArray(v))return v;if(v==null)return[];if(typeof v!=='string')return toList(v);const t=v.trim();if(!t)return[];const m=t.match(/^\[(.*)\]$/s);return(m?m[1]:t).split(/,\s*/).map(i=>i.trim().replace(/^['"]|['"]$/g,'')).filter(Boolean);}
+function normMatch(v){if(!v||typeof v!=='object')return{};return{score:v.score??v.overall_score??v.total_score??'-',matched_items:v.matched_items??[],missing_items:v.missing_items??[],reasoning:v.reasoning??v.final_reasoning??''};}
+function normCand(c,i){
+    const s=c&&typeof c==='object'?c:{};
+    const ri=s.resume_info??s.resumeInfo??s.candidate??s.summary??{};
+    const fs=s.final_score??s.finalScore??{};
+    return{...s,
+        name:ri.name??s.name??s.full_name??s.candidate_name??s.cv_name??s.title??`Candidate #${i}`,
+        email:ri.email??s.email??s.mail??'',
+        social_links:normLinks(ri.social_links??ri.socialLinks??s.social_links??s.socialLinks),
+        skills_section:s.skills_section??s.skilss_section??s.skills??[],
+        education_section:s.education_section??s.education??'',
+        experience_section:s.experience_section??s.experience??'',
+        skills_matching:normMatch(s.skills_matching),
+        education_matching:normMatch(s.education_matching),
+        experience_matching:normMatch(s.experience_matching),
+        final_score:{overall_score:fs.overall_score??fs.score??s.overall_score??s.score??0,final_reasoning:fs.final_reasoning??fs.reasoning??s.final_reasoning??s.reasoning??''}
+    };
+}
+function normResult(d){
+    if(Array.isArray(d)){return{jdInfo:d[0]?.jd_info??d[0]?.jdInfo??null,candidates:d.slice(1).map((c,i)=>normCand(c,i+1))};}
+    if(!d||typeof d!=='object')return{jdInfo:null,candidates:[]};
+    const ji=d.jd_info??d.jdInfo??d.jd??null;
+    const sm=Array.isArray(d.summary)?d.summary:[];
+    return{jdInfo:ji,candidates:(sm.length?sm:[d]).map((c,i)=>normCand(c,i+1))};
+}
+
+/* === Render === */
+function renderRaw(d){rawData=d;rawArea.textContent=JSON.stringify(d??[],null,2);rawBtn.disabled=!rawData;}
+function renderJd(ji,cands){
+    jdInfo=ji;
+    if(!ji){jdArea.className='empty';jdArea.textContent='No JD to display.';return;}
+    jdArea.className='sec-block'; jdArea.innerHTML='';
+    const h=document.createElement('h4');h.textContent='Job Description';jdArea.appendChild(h);
+    const t=document.createElement('table');t.className='dtable';
+    t.innerHTML=`<tbody><tr><th>Title</th><td>${esc(ji.title??'')}</td></tr><tr><th>Required Skills</th><td>${esc(join(ji.required_skills)||'')}</td></tr><tr><th>Min Experience</th><td>${esc(ji.min_experience_years??'')}</td></tr><tr><th>Experience Context</th><td>${esc(ji.experience_context??'')}</td></tr><tr><th>Education</th><td>${esc(ji.education_requirement??'')}</td></tr></tbody>`;
+    jdArea.appendChild(t);
+}
+function renderCost(d){
+    costData=d;costArea.innerHTML='';
+    const tot={total_cost:Number(d?.total_cost??0),calls:Number(d?.call_models_count??0),inp:Number(d?.total_input_tokens??0),out:Number(d?.total_output_tokens??0)};
+    const coreKeys=new Set(['total_cost','call_models_count','total_input_tokens','total_output_tokens']);
+    const entries=Object.entries(d??{}).filter(([k,v])=>!coreKeys.has(k)&&v!=null).map(([k,v])=>{
+        if(v&&typeof v==='object'&&!Array.isArray(v)){return{key:k,role:v.role??k.split(' ')[0]??k,model:v.model_used??v.model??'',cost:Number(v.cost??v.total_cost??0),pt:Number(v.prompt_tokens??v.input_tokens??0),ct:Number(v.completion_tokens??v.output_tokens??0)};}
+        return{key:k,role:k.includes(' ')?k.slice(0,k.indexOf(' ')):k,model:k.includes(' ')?k.slice(k.indexOf(' ')+1):'',cost:Number(v??0),pt:0,ct:0};
+    }).sort((a,b)=>b.cost-a.cost);
+    costCnt.textContent=`${entries.length} items`;
+    const g=document.createElement('div');g.className='cost-grid';
+    [['Total Cost',fmtCost(tot.total_cost)],['Calls',fmtInt(tot.calls)],['Input Tokens',fmtInt(tot.inp)],['Output Tokens',fmtInt(tot.out)]].forEach(([l,v])=>{
+        const c=document.createElement('div');c.className='cost-card';c.innerHTML=`<div class="cost-label">${l}</div><div class="cost-val">${v}</div>`;g.appendChild(c);
+    });
+    costArea.appendChild(g);
+    if(!entries.length){costArea.insertAdjacentHTML('beforeend','<p style="color:var(--text-tertiary);font-size:12px">No breakdown data.</p>');return;}
+    const ig=document.createElement('div');ig.className='cost-items';
+    entries.forEach(e=>{
+        const c=document.createElement('div');c.className='cost-item';
+        const sub=[e.model,e.pt||e.ct?`${fmtInt(e.pt)} in / ${fmtInt(e.ct)} out`:null].filter(Boolean).join(' · ');
+        c.innerHTML=`<div class="cost-item-head"><div><div class="cost-item-title">${esc(e.role||e.key)}</div><div class="cost-item-sub">${esc(sub||'Subagent')}</div></div><div class="cost-pill">${fmtCost(e.cost)}</div></div>`;
+        ig.appendChild(c);
+    });
+    costArea.appendChild(ig);
+}
+function renderRej(d){
+    const rej=Array.isArray(d?.rejected_cvs)?d.rejected_cvs:[];
+    rejectedCvs=rej;rejArea.innerHTML='';rejCnt.textContent=`${rej.length}`;rejBtn.disabled=!rej.length;
+    if(!rej.length){rejArea.innerHTML='<p style="color:var(--text-tertiary);font-size:12px">No rejected CVs.</p>';if(!rejVis)rejWrap.classList.add('hidden');return;}
+    rej.forEach((r,i)=>{
+        const c=document.createElement('div');c.className='rej-card';
+        c.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div class="rej-name">${esc(r.filename??`Rejected #${i+1}`)}</div><div class="pill pill-warn">Rejected</div></div><div class="rej-reason">${esc(r.reason??'Did not meet requirements')}</div>`;
+        rejArea.appendChild(c);
+    });
+}
+function makeChips(vals){
+    const w=document.createElement('div');w.className='chip-list';
+    const l=toList(vals);
+    if(!l.length){const e=document.createElement('div');e.className='muted-box';e.textContent='N/A';w.appendChild(e);return w;}
+    l.forEach(v=>{const c=document.createElement('span');c.className='chip';c.textContent=String(v);w.appendChild(c);});
+    return w;
+}
+function makeTable(cand){
+    const jd=jdInfo??{};const t=document.createElement('table');t.className='dtable';
+    const th=document.createElement('thead');th.innerHTML='<tr><th>Category</th><th>CV</th><th>JD</th><th>Score</th><th>Matched</th><th>Missing</th><th>Reasoning</th></tr>';t.appendChild(th);
+    const tb=document.createElement('tbody');
+    function row(label,cv,jdv,m,opts={}){
+        const tr=document.createElement('tr');
+        [label,cv,jdv,m?.score??'-',join(m?.matched_items),join(m?.missing_items),m?.reasoning??''].forEach((v,i)=>{
+            const td=document.createElement('td');
+            if((i===1&&opts.cvChips)||(i===2&&opts.jdChips))td.appendChild(makeChips(v));
+            else if(i===6){td.className='muted-box';td.textContent=String(v??'');}
+            else td.textContent=String(v??'');
+            tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+    }
+    row('Skills',cand.skills_section,jd.required_skills,cand.skills_matching,{cvChips:true,jdChips:true});
+    row('Education',cand.education_section,jd.education_requirement,cand.education_matching);
+    const expJd=[jd.experience_context,jd.min_experience_years!=null?`Min years: ${jd.min_experience_years}`:null].filter(Boolean).join(' | ');
+    row('Experience',cand.experience_section,expJd,cand.experience_matching);
+    t.appendChild(tb);return t;
+}
+function makeCandCard(c,rank){
+    const card=document.createElement('article');card.className='cand';
+    const fs=c.final_score??{};const score=Number(fs.overall_score??0);
+    const top=document.createElement('div');top.className='cand-top';
+    const sb=document.createElement('div');sb.className='cand-score';sb.textContent=score;
+    const body=document.createElement('div');
+    const nm=document.createElement('div');nm.className='cand-name';nm.textContent=c.name||`Candidate #${rank}`;body.appendChild(nm);
+    if(c.email){const em=document.createElement('div');em.className='cand-email';const a=document.createElement('a');a.href=`mailto:${c.email}`;a.textContent=c.email;em.appendChild(a);body.appendChild(em);}
+    if(c.social_links?.length){
+        const sl=document.createElement('div');sl.className='cand-links';
+        c.social_links.forEach(l=>{const a=document.createElement('a');a.className='cand-link';a.href=String(l).startsWith('http')?l:`https://${l}`;a.target='_blank';a.rel='noopener';a.textContent=String(l);sl.appendChild(a);});
+        body.appendChild(sl);
+    }
+    const rsn=document.createElement('p');rsn.className='cand-reason';rsn.textContent=fs.final_reasoning??'';body.appendChild(rsn);
+    const acts=document.createElement('div');acts.style.cssText='display:flex;gap:6px;align-items:start;';
+    const detBtn=document.createElement('button');detBtn.className='btn btn-soft btn-sm';detBtn.textContent='Details';detBtn.type='button';
+    detBtn.onclick=()=>{const ex=card.classList.toggle('open');detBtn.textContent=ex?'Collapse':'Details';};
+    acts.appendChild(detBtn);
+    top.appendChild(sb);top.appendChild(body);top.appendChild(acts);card.appendChild(top);
+    const det=document.createElement('div');det.className='cand-detail';
+    const inner=document.createElement('div');inner.className='cand-detail-inner';
+    const compH=document.createElement('h4');compH.textContent='Comparison';compH.style.cssText='font-size:13px;margin-bottom:8px;';inner.appendChild(compH);inner.appendChild(makeTable(c));
+    const ovH=document.createElement('h4');ovH.textContent='Candidate Overview';ovH.style.cssText='font-size:13px;margin:14px 0 8px;';inner.appendChild(ovH);
+    const ot=document.createElement('table');ot.className='dtable';
+    ot.innerHTML=`<tbody><tr><th>Name</th><td>${esc(c.name??'')}</td></tr><tr><th>Email</th><td>${esc(c.email??'')}</td></tr><tr><th>Social</th><td>${esc(join(c.social_links)||'—')}</td></tr><tr><th>Education</th><td>${esc(c.education_section??'')}</td></tr><tr><th>Skills</th><td>${esc(join(c.skills_section)||'')}</td></tr><tr><th>Experience</th><td>${esc(c.experience_section??'')}</td></tr></tbody>`;
+    inner.appendChild(ot);det.appendChild(inner);card.appendChild(det);return card;
+}
+function renderAll(data){
+    const{jdInfo:ji,candidates}=normResult(data);
+    const sorted=candidates.sort((a,b)=>Number(b.final_score?.overall_score??0)-Number(a.final_score?.overall_score??0));
+    hasResults=sorted.length>0;
+    renderJd(ji,sorted);renderRaw(data);renderRej(data);
+    resArea.innerHTML='';resCount.textContent=`${sorted.length} candidate${sorted.length!==1?'s':''}`;
+    resCount.className=`pill ${sorted.length?'pill-ok':'pill-mute'}`;
+    resSub.textContent=sorted.length?`${sorted.length} candidate(s) ranked by overall score.`:'No candidates to display yet.';
+    if(!sorted.length){resArea.innerHTML='<div class="empty">No candidates to display.</div>';return;}
+    sorted.forEach((c,i)=>resArea.appendChild(makeCandCard(c,i+1)));
+}
+
+/* === Toggle sections === */
+rawBtn.onclick=()=>{if(!rawData)return;rawVis=!rawVis;rawWrap.classList.toggle('hidden',!rawVis);rawBtn.textContent=rawVis?'Hide JSON':'Raw JSON';};
+costBtn.onclick=async()=>{
+    if(costVis){costVis=false;costWrap.classList.add('hidden');costBtn.textContent='Cost';return;}
+    costBtn.disabled=true;costBtn.textContent='Loading...';
+    try{const r=await fetch('/cost');renderCost(await r.json());costVis=true;costWrap.classList.remove('hidden');costBtn.textContent='Hide Cost';}
+    catch(e){resSub.textContent='Error loading cost: '+e;}
+    finally{costBtn.disabled=false;}
+};
+rejBtn.onclick=()=>{if(!rejectedCvs.length)return;rejVis=!rejVis;rejWrap.classList.toggle('hidden',!rejVis);rejBtn.textContent=rejVis?'Hide Rejected':'Rejected';};
+
+/* === Forms === */
+cvForm.onsubmit=async e=>{
+    e.preventDefault();
+    if(!cvFiles.files.length){resSub.textContent='Please select at least one PDF file.';return;}
+    const fd=new FormData();for(const f of cvFiles.files)fd.append('files',f);
+    cvBtn.disabled=true;resSub.innerHTML='<span class="spin">Uploading CVs...</span>';
+    try{const r=await fetch('/upload_cv/',{method:'POST',body:fd});const d=await r.json();uid=d.id??null;jdDone=false;sync();resSub.textContent='CVs uploaded. Now upload the Job Description.';toast(`Upload successful. ID: ${uid}`,'ok','Upload CV');document.getElementById('jdZone').classList.add('open');}
+    catch(e){resSub.textContent='API error: '+e;toast('Upload failed: '+e,'err','Error');}
+    finally{cvBtn.disabled=false;}
+};
+jdForm.onsubmit=async e=>{
+    e.preventDefault();
+    if(!uid){resSub.textContent='Upload CVs first.';return;}
+    if(!jdFile.files.length){resSub.textContent='Please select a PDF for the JD.';return;}
+    const fd=new FormData();fd.append('file',jdFile.files[0]);
+    jdBtn.disabled=true;resSub.innerHTML='<span class="spin">Uploading JD...</span>';
+    try{await(await fetch(`/upload_jd/${uid}`,{method:'POST',body:fd})).json();jdDone=true;sync();resSub.textContent='JD uploaded. Ready to run.';toast('JD uploaded successfully.','ok','Upload JD');document.getElementById('runZone').classList.add('open');}
+    catch(e){resSub.textContent='API error: '+e;toast('Upload failed: '+e,'err','Error');}
+    finally{jdBtn.disabled=false;}
+};
+runBtn.onclick=async()=>{
+    if(!uid||!jdDone)return;
+    runBtn.disabled=true;resSub.innerHTML='<span class="spin">Running AI screening...</span>';
+    try{
+        const r=await fetch(`/process/${uid}`,{method:'POST'});const d=await r.json();
+        if(!r.ok){jdDone=false;sync();const m=d.detail??d.error??'Invalid JD. Please upload a different file.';resSub.textContent=m;toast(m,'err','Invalid JD');resArea.innerHTML='';return;}
+        renderAll(d);toast('Screening complete!','ok','Done');sync();
+    }catch(e){jdDone=false;sync();resSub.textContent='API error: '+e;toast('Process failed: '+e,'err','Error');}
+    finally{runBtn.disabled=false;}
+};
+
+sync();
+renderAll([]);
+</script>
+</body>
+</html>

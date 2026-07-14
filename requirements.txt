@@ -1,0 +1,14 @@
+langchain
+langchain_community
+langchain-groq
+python-dotenv
+langchain-google-genai
+langchain_ollama
+langgraph
+pandas
+ipykernel
+litellm
+fastapi
+pypdf
+uvicorn
+python-multipart
